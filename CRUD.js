@@ -2,13 +2,13 @@
 const dbConn = require('./DBInstance')
 
 
-const insertfirst = (tweetid, hash) => {
+const insertfirst = (tweetid, hash, userid) => {
 
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb1.tweets (tweetid, encstring) VALUES ('${tweetid}', '${data}')`, (err, res) => {
+    dbConn.query(`INSERT INTO tweetdb1.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
@@ -21,12 +21,12 @@ const insertfirst = (tweetid, hash) => {
 }
 
 
-const insertsecond = (tweetid, hash) => {
+const insertsecond = (tweetid, hash, userid) => {
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb2.tweets (tweetid, encstring) VALUES ('${tweetid}', '${data}')`, (err, res) => {
+    dbConn.query(`INSERT INTO tweetdb2.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
@@ -38,12 +38,12 @@ const insertsecond = (tweetid, hash) => {
     });
 }
 
-const insertthird = (tweetid, hash) => {
+const insertthird = (tweetid, hash, userid) => {
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb3.tweets (tweetid, encstring) VALUES ('${tweetid}', '${data}')`, (err, res) => {
+    dbConn.query(`INSERT INTO tweetdb3.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
