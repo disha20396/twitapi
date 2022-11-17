@@ -1,14 +1,16 @@
 
-const dbConn = require('./DBInstance')
+const dbConn1 = require('./DBInstance1')
+const dbConn2 = require('./DBInstance2')
+const dbConn3 = require('./DBInstance3')
 
 
-const insertfirst = (tweetid, hash, userid) => {
+const insertfirst = (tweetid, hash, userid, secretkey) => {
 
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb1.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
+    dbConn1.query(`INSERT INTO tweetdb1.tweets (tweetid, encstring, userid, secretkey) VALUES ('${tweetid}', '${data}', '${userid}', '${secretkey}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
@@ -21,12 +23,12 @@ const insertfirst = (tweetid, hash, userid) => {
 }
 
 
-const insertsecond = (tweetid, hash, userid) => {
+const insertsecond = (tweetid, hash, userid, secretkey) => {
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb2.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
+    dbConn2.query(`INSERT INTO tweetdb2.tweets (tweetid, encstring, userid, secretkey) VALUES ('${tweetid}', '${data}', '${userid}', '${secretkey}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
@@ -38,12 +40,12 @@ const insertsecond = (tweetid, hash, userid) => {
     });
 }
 
-const insertthird = (tweetid, hash, userid) => {
+const insertthird = (tweetid, hash, userid, secretkey) => {
     console.log(tweetid);
     console.log(JSON.stringify(hash));
     const data = JSON.stringify(hash);
 
-    dbConn.query(`INSERT INTO tweetdb3.tweets (tweetid, encstring, userid) VALUES ('${tweetid}', '${data}', '${userid}')`, (err, res) => {
+    dbConn3.query(`INSERT INTO tweetdb3.tweets (tweetid, encstring, userid, secretkey) VALUES ('${tweetid}', '${data}', '${userid}', '${secretkey}')`, (err, res) => {
         if (err) {
             console.log(err);
             return "error";
@@ -55,56 +57,5 @@ const insertthird = (tweetid, hash, userid) => {
     });
 }
 
-const gettweetfirst = async (tweetid) => {
 
-    await dbConn.query(`SELECT encstring FROM tweetdb1.tweets WHERE tweetid='${tweetid}'`, (err, res) => {
-        if (err) {
-            console.log(err);
-            return "error";
-        }
-        else {
-            console.log(tweetid);
-            return res
-        }
-    });
-    // dbConn.query(`SELECT encstring FROM tweetdb1.tweets WHERE tweetid='${tweetid}'`, (err, res, fields) => {
-    //     if (err) {
-    //         console.log(err);
-    //         return "error";
-    //     }
-    //     else {
-    //         return res;
-    //     }
-    // });
-
-}
-
-const gettweetsecond = (tweetid) => {
-    let result;
-    dbConn.query(`SELECT encstring FROM tweetdb2.tweets WHERE tweetid='${tweetid}'`, (err, res) => {
-        if (err) {
-            console.log(err);
-            return "error";
-        }
-        else {
-            result = res;
-        }
-    });
-    return result
-}
-
-const gettweetthird = (tweetid) => {
-
-    dbConn.query(`SELECT encstring FROM tweetdb3.tweets WHERE tweetid='${tweetid}'`, (err, res) => {
-        if (err) {
-            console.log(err);
-            return "error";
-        }
-        else {
-            return res
-        }
-    });
-}
-
-
-module.exports = { insertfirst, insertsecond, insertthird, gettweetfirst, gettweetsecond, gettweetthird }
+module.exports = { insertfirst, insertsecond, insertthird }

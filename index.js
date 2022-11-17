@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const { encrypt, decrypt, getuuid } = require('./crypto');
 const { getIndex } = require('./indexgeneration');
 const { getPartitionedTweet } = require('./tweetpartition')
-const { insertfirst, insertsecond, insertthird, gettweetfirst, gettweetsecond, gettweetthird } = require('./CRUD');
+const { insertfirst, insertsecond, insertthird } = require('./CRUD');
 const { splitArray, splitToChunks } = require('./common');
-const dbConn = require('./DBInstance')
+const dbConn1 = require('./DBInstance1')
+const dbConn2 = require('./DBInstance2')
+const dbConn3 = require('./DBInstance3')
 
 
 var app = express();
@@ -27,38 +29,39 @@ app.post("/enctweet", (req, res, next) => {
     const tweet = body.tweet;
     const userid = body.userid;
     const tweetLength = tweet.length;
-    const numberofpartitions = 3;
+    const numberofpartitions = body.numberofpartitions; // Change partitions
     const index = getIndex(tweetLength, numberofpartitions)
 
     const partitionedtweet = getPartitionedTweet(index, tweet);
 
     const ensStringList = [];
+    const secretKey = getuuid().replace(/-/gi, '');
 
     for (let i = 0; i < partitionedtweet.length; i++) {
         const str = partitionedtweet[i];
 
-        const encstr = encrypt(str);
+        const encstr = encrypt(str, secretKey);
 
         ensStringList.push(encstr);
     }
 
     const tweetid = getuuid();
     if (numberofpartitions == 3) {
-        insertfirst(tweetid, ensStringList[0], userid);
-        insertsecond(tweetid, ensStringList[1], userid);
-        insertthird(tweetid, ensStringList[2], userid);
+        insertfirst(tweetid, ensStringList[0], userid, secretKey);
+        insertsecond(tweetid, ensStringList[1], userid, secretKey);
+        insertthird(tweetid, ensStringList[2], userid, secretKey);
     }
     else {
         const arr = splitToChunks(ensStringList, 3);
         console.log(arr);
         for (let i = 0; i < arr[0].length; i++) {
-            insertfirst(tweetid, arr[0][i], userid);
+            insertfirst(tweetid, arr[0][i], userid, secretKey);
         }
         for (let i = 0; i < arr[1].length; i++) {
-            insertsecond(tweetid, arr[1][i], userid);
+            insertsecond(tweetid, arr[1][i], userid, secretKey);
         }
         for (let i = 0; i < arr[2].length; i++) {
-            insertthird(tweetid, arr[2][i], userid);
+            insertthird(tweetid, arr[2][i], userid, secretKey);
         }
 
     }
@@ -70,42 +73,44 @@ app.post("/dectweet", async (req, res, next) => {
     const body = req.body;
     const tweetid = body.tweetid;
     const strarr = [];
+    let secretKey = "";
 
-    dbConn.query(`SELECT id, encstring FROM tweetdb1.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err, results) => {
+    dbConn1.query(`SELECT id, encstring, secretkey FROM tweetdb1.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err, results) => {
         if (err) {
             console.log(err);
             return "error";
         }
         else {
             Object.keys(results).forEach(key => {
-                var row = results[key];
+                const row = results[key];
+                secretKey = row.secretkey;
                 strarr.push(JSON.parse(row.encstring));
             });
         }
-        dbConn.query(`SELECT id, encstring FROM tweetdb2.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err1, results1) => {
+        dbConn2.query(`SELECT id, encstring FROM tweetdb2.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err1, results1) => {
             if (err1) {
                 console.log(err1);
                 return "error";
             }
             else {
                 Object.keys(results1).forEach(key => {
-                    var row = results1[key];
+                    const row = results1[key];
                     strarr.push(JSON.parse(row.encstring));
                 });
-                dbConn.query(`SELECT id, encstring FROM tweetdb3.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err2, results2) => {
+                dbConn3.query(`SELECT id, encstring FROM tweetdb3.tweets WHERE tweetid='${tweetid}' ORDER BY id`, (err2, results2) => {
                     if (err2) {
                         console.log(err2);
                         return "error";
                     }
                     else {
                         Object.keys(results2).forEach(key => {
-                            var row = results2[key];
+                            const row = results2[key];
                             strarr.push(JSON.parse(row.encstring));
                         });
                         let finstr = "";
                         const decryptionlist = [];
                         for (let i = 0; i < strarr.length; i++) {
-                            finstr = finstr + decrypt(strarr[i]);
+                            finstr = finstr + decrypt(strarr[i], secretKey);
                         }
 
                         console.log(finstr);
@@ -123,7 +128,8 @@ app.post("/dectweetbyuid", (req, res, next) => {
     const userid = body.userid;
     const strarr = [];
     const tweetidarry = [];
-    dbConn.query(`SELECT id, tweetid, encstring FROM tweetdb1.tweets WHERE userid='${userid}' ORDER BY id`, (err, results) => {
+
+    dbConn1.query(`SELECT id, tweetid, encstring, secretkey FROM tweetdb1.tweets WHERE userid='${userid}' ORDER BY id`, (err, results) => {
         if (err) {
             console.log(err);
             return "error";
@@ -133,10 +139,10 @@ app.post("/dectweetbyuid", (req, res, next) => {
                 var row = results[key];
                 strarr.push({ "tweetid": row.tweetid, "encstring": JSON.parse(row.encstring) });
                 if (!tweetidarry.includes(row.tweetid))
-                    tweetidarry.push(row.tweetid);
+                    tweetidarry.push({ tweetid: row.tweetid, secretKey: row.secretkey });
             });
         }
-        dbConn.query(`SELECT id, tweetid, encstring FROM tweetdb2.tweets WHERE userid='${userid}' ORDER BY id`, (err1, results1) => {
+        dbConn2.query(`SELECT id, tweetid, encstring FROM tweetdb2.tweets WHERE userid='${userid}' ORDER BY id`, (err1, results1) => {
             if (err1) {
                 console.log(err1);
                 return "error";
@@ -146,7 +152,7 @@ app.post("/dectweetbyuid", (req, res, next) => {
                     var row = results1[key];
                     strarr.push({ "tweetid": row.tweetid, "encstring": JSON.parse(row.encstring) });
                 });
-                dbConn.query(`SELECT id, tweetid, encstring FROM tweetdb3.tweets WHERE userid='${userid}' ORDER BY id`, (err2, results2) => {
+                dbConn3.query(`SELECT id, tweetid, encstring FROM tweetdb3.tweets WHERE userid='${userid}' ORDER BY id`, (err2, results2) => {
                     if (err2) {
                         console.log(err2);
                         return "error";
@@ -162,12 +168,13 @@ app.post("/dectweetbyuid", (req, res, next) => {
                         for (let i = 0; i < tweetidarry.length; i++) {
                             finstr = "";
                             var filtered = []
-                            filtered = strarr.filter(a => a.tweetid == tweetidarry[i]);
+                            filtered = strarr.filter(a => a.tweetid == tweetidarry[i].tweetid);
+                            let secretKey = tweetidarry[i].secretKey;
 
                             for (let j = 0; j < filtered.length; j++) {
-                                finstr = finstr + decrypt(filtered[j].encstring);
+                                finstr = finstr + decrypt(filtered[j].encstring, secretKey);
                             }
-                            finarr.push({ "tweetid": tweetidarry[i], "decrypttweet": finstr })
+                            finarr.push({ "tweetid": tweetidarry[i].tweetid, "decrypttweet": finstr })
                         }
 
                         console.log(finarr);

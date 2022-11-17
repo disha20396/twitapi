@@ -1,57 +1,21 @@
 const mysql = require('mysql');
-
-const insertthird = (tweetid, hash) => {
-    const con = mysql.createConnection({
-        host: "twitdemo-db-3-instance-1.csddg61e0wul.us-east-1.rds.amazonaws.com",
-        user: "admin",
-        password: "Csus2022",
-        database: "main"
-    });
-    console.log(tweetid);
-    console.log(JSON.stringify(hash));
-    const data = JSON.stringify(hash);
+const util = require('util');
 
 
-    con.connect(function (err) {
-        if (err) {
-            console.log(err);
-            return err;
-        }
-        console.log("connected");
-        con.query(`INSERT INTO tweets (tweetid, encstring) VALUES ('${tweetid}', '${data}')`, function (err, result, fields) {
-            if (err) {
-                console.log(err);
-                return err;
-            }
 
-            if (result) {
-                console.log(result);
-                return { 'tweetid': tweetid, 'hash': hash }
-            };
-            if (fields) console.log(fields);
-            return tweetid;
-        });
-    });
-}
+const dbConn3 = mysql.createConnection({
+    host: 'database-3.csddg61e0wul.us-east-1.rds.amazonaws.com',
+    user: 'admin',
+    password: 'Csus2022'
+});
 
-const getrecordsbyid = tweetid => {
-    const con = mysql.createConnection({
-        host: "twitdemo-db-3-instance-1.csddg61e0wul.us-east-1.rds.amazonaws.com",
-        user: "admin",
-        password: "Csus2022",
-        database: "main"
-    });
-    con.connect(err => {
-        if (err) {
-            console.log(err);
-            throw err;
-        }
-        con.query(`select * from tweets where tweetid='${tweetid}'`, (err, result, fields) => {
-            if (err) throw err;
-            return result;
-        })
-    });
+const query = util.promisify(dbConn3.query).bind(dbConn3);
 
-}
+dbConn3.connect(function (err) {
+    if (err) throw err;
+    console.log("Database 3 Connected!");
+});
 
-module.exports = { insertthird, getrecordsbyid }
+
+
+module.exports = dbConn3;

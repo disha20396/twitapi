@@ -1,10 +1,12 @@
 const crypto = require('crypto')
 
 const algorithm = 'aes-256-ctr'
-const secretKey = 'vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3'
+//const secretKey = 'vOVH6sdmpNWjRRIqCc7rdxs01lwHzfr3'
 
-const encrypt = text => {
+const encrypt = (text, secretKey) => {
     const iv = crypto.randomBytes(16)
+
+    console.log("IV:" + iv);
 
     const cipher = crypto.createCipheriv(algorithm, secretKey, iv)
 
@@ -16,7 +18,7 @@ const encrypt = text => {
     }
 }
 
-const decrypt = hash => {
+const decrypt = (hash, secretKey) => {
     const decipher = crypto.createDecipheriv(algorithm, secretKey, Buffer.from(hash.iv, 'hex'))
 
     const decrpyted = Buffer.concat([decipher.update(Buffer.from(hash.content, 'hex')), decipher.final()])
