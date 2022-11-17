@@ -8,7 +8,7 @@ const { insertfirst, insertsecond, insertthird } = require('./CRUD');
 const { splitArray, splitToChunks } = require('./common');
 const dbConn1 = require('./DBInstance1')
 const dbConn2 = require('./DBInstance2')
-const dbConn3 = require('./DBInstance3')
+const dbConn3 = require('./DB3')
 
 
 var app = express();

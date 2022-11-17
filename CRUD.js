@@ -1,7 +1,7 @@
 
 const dbConn1 = require('./DBInstance1')
 const dbConn2 = require('./DBInstance2')
-const dbConn3 = require('./DBInstance3')
+const dbConn3 = require('./DB3')
 
 
 const insertfirst = (tweetid, hash, userid, secretkey) => {
