@@ -24,7 +24,7 @@ const dbConn4 = require("./DB4");
 const dbConn5 = require("./DB5");
 const dbConn6 = require("./DB6");
 const dbConn7 = require("./DB7");
-const dbConn8 = require("./DB9");
+const dbConn8 = require("./DB8");
 const dbConn9 = require("./DB9");
 const dbConn10 = require("./DB10");
 
