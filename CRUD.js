@@ -1,13 +1,13 @@
 const dbConn1 = require("./DBInstance1");
 const dbConn2 = require("./DBInstance2");
 const dbConn3 = require("./DB3");
-const dbConn4 = require("./DBInstance4");
-const dbConn5 = require("./DBInstance5");
-const dbConn6 = require("./DBInstance6");
-const dbConn7 = require("./DBInstance7");
-const dbConn8 = require("./DBInstance8");
-const dbConn9 = require("./DBInstance9");
-const dbConn10 = require("./DBInstance10");
+const dbConn4 = require("./DB4");
+const dbConn5 = require("./DB5");
+const dbConn6 = require("./DB6");
+const dbConn7 = require("./DB7");
+const dbConn8 = require("./DB9");
+const dbConn9 = require("./DB9");
+const dbConn10 = require("./DB10");
 
 const insertfirst = (tweetid, hash, userid, secretkey) => {
   console.log(tweetid);
